@@ -10,10 +10,10 @@ c:\users\long2\source\repos\AutoCA\AutoCA\obj\Debug\AutoCA.pdb
 C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\bin\Debug\AutoCA.exe.config
 C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\bin\Debug\AutoCA.exe
 C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\bin\Debug\AutoCA.pdb
-C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\obj\Debug\AutoCA.csprojResolveAssemblyReference.cache
 C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\obj\Debug\AutoCA.AutoCA.resources
 C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\obj\Debug\AutoCA.Properties.Resources.resources
 C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\obj\Debug\AutoCA.csproj.GenerateResource.Cache
 C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\obj\Debug\AutoCA.csproj.CoreCompileInputs.cache
 C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\obj\Debug\AutoCA.exe
 C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\obj\Debug\AutoCA.pdb
+C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\obj\Debug\AutoCA.csprojResolveAssemblyReference.cache

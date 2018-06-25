@@ -17,7 +17,7 @@ using OpenQA.Selenium.Interactions;
 using System.Data.SqlClient;
 
 namespace AutoCA
-{    
+{
     public partial class AutoCA : Form
     {
         public static IWebDriver chromeDriver;
@@ -33,6 +33,9 @@ namespace AutoCA
             txbGroup.Text = ConfigurationManager.AppSettings["Group"];
             txbAffected.Text = ConfigurationManager.AppSettings["AffectedEndUserPosition"];
             txbAssignee.Text = ConfigurationManager.AppSettings["AssigneePosition"];
+
+            txbReportName.Text = ConfigurationManager.AppSettings["ReportName"];
+            txbReportUserName.Text = ConfigurationManager.AppSettings["ReportUserName"];
         }
 
         private void btnCreate_Click(object sender, EventArgs e)
@@ -84,7 +87,7 @@ namespace AutoCA
                         int catId = int.Parse(row[6].ToString());
                         string caDate = row[7].ToString();
 
-                        //Create ticket on CA site
+                        //Create ticket on CA site                        
                         ConnectAndSignIn();
                         CreateRequest(summary, description, requestArea, rootCause, txbName.Text, txbGroup.Text);
 
@@ -132,7 +135,7 @@ namespace AutoCA
             chromeDriver.FindElement(By.Name("imgBtn0")).Click();
         }
 
-        private void CreateRequest(string summary, string description, string requestName, 
+        private void CreateRequest(string summary, string description, string requestName,
             string rootCauseName, string userName, string groupName)
         {
             Thread.Sleep(5000);
@@ -152,7 +155,7 @@ namespace AutoCA
             chromeDriver.SwitchTo().Frame(role_main);
             IWebElement cai_main = chromeDriver.FindElement(By.Id("cai_main"));
             chromeDriver.SwitchTo().Frame(cai_main);
-            
+
             //Affected End User
             chromeDriver.FindElement(By.Id("df_0_1")).SendKeys(userName);
             Thread.Sleep(500);
@@ -178,7 +181,7 @@ namespace AutoCA
             Thread.Sleep(1000);
             selectNewRequest = new Actions(chromeDriver);
             selectNewRequest.SendKeys(OpenQA.Selenium.Keys.LeftAlt + "s").Build().Perform();
-            
+
             Thread.Sleep(5000);
             chromeDriver.Close();
             chromeDriver.Dispose();
@@ -297,7 +300,7 @@ namespace AutoCA
             chromeDriver.Dispose();
         }
 
-        private void InsertDataToDB(SqlConnection sqlCon, string CADate, int CatId, string Summary, 
+        private void InsertDataToDB(SqlConnection sqlCon, string CADate, int CatId, string Summary,
             string Description, string RequestArea, string RootCause)
         {
             try
@@ -311,15 +314,254 @@ namespace AutoCA
                 sqlCommand.Parameters.AddWithValue("@summary", Summary);
                 sqlCommand.Parameters.AddWithValue("@description", Description);
                 sqlCommand.Parameters.AddWithValue("@requestArea", RequestArea);
-                sqlCommand.Parameters.AddWithValue("@rootCause", RootCause);                
+                sqlCommand.Parameters.AddWithValue("@rootCause", RootCause);
 
                 sqlCommand.ExecuteNonQuery();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 WriteLog(ex.ToString());
             }
-            
-        }        
+
+        }
+
+        private void CreateCSVFileFromTable(DataTable dt, string fileName)
+        {
+            StringBuilder sb = new StringBuilder();
+            IEnumerable<string> columnNames = dt.Columns.Cast<DataColumn>().
+                                              Select(column => column.ColumnName);
+            sb.AppendLine(string.Join(",", columnNames));
+            foreach (DataRow row in dt.Rows)
+            {
+                IEnumerable<string> fields = row.ItemArray.Select(field =>
+                    string.Concat("\"", field.ToString().Replace("\"", "\"\""), "\""));
+                sb.AppendLine(string.Join(",", fields));
+            }
+            File.WriteAllText(fileName, sb.ToString());
+        }
+
+        private static void ExportToExcel(DataTable DataTable, string ExcelFilePath = null)
+        {
+            try
+            {
+                int ColumnsCount;
+
+                if (DataTable == null || (ColumnsCount = DataTable.Columns.Count) == 0)
+                    throw new Exception("ExportToExcel: Null or empty input table!\n");
+
+                // load excel, and create a new workbook
+                Microsoft.Office.Interop.Excel.Application Excel = new Microsoft.Office.Interop.Excel.Application();
+                Excel.Workbooks.Add();
+
+                // single worksheet
+                Microsoft.Office.Interop.Excel._Worksheet Worksheet = Excel.ActiveSheet;
+                Worksheet.Cells.NumberFormat = "@";//Type of all cells set to text
+
+
+                object[] Header = new object[ColumnsCount];
+
+                // column headings               
+                for (int i = 0; i < ColumnsCount; i++)
+                    Header[i] = DataTable.Columns[i].ColumnName;
+
+                Microsoft.Office.Interop.Excel.Range HeaderRange = Worksheet.get_Range((Microsoft.Office.Interop.Excel.Range)(Worksheet.Cells[1, 1]), (Microsoft.Office.Interop.Excel.Range)(Worksheet.Cells[1, ColumnsCount]));
+                HeaderRange.Value = Header;
+                HeaderRange.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.LightGray);
+                HeaderRange.Font.Bold = true;
+
+                // DataCells
+                int RowsCount = DataTable.Rows.Count;
+                object[,] Cells = new object[RowsCount, ColumnsCount];
+
+                for (int j = 0; j < RowsCount; j++)
+                    for (int i = 0; i < ColumnsCount; i++)
+                        Cells[j, i] = DataTable.Rows[j][i];
+
+                Worksheet.get_Range((Microsoft.Office.Interop.Excel.Range)(Worksheet.Cells[2, 1]), (Microsoft.Office.Interop.Excel.Range)(Worksheet.Cells[RowsCount + 1, ColumnsCount])).Value = Cells;
+                Worksheet.Columns.AutoFit();//Extend column width if necessary
+                // check fielpath
+                if (ExcelFilePath != null && ExcelFilePath != "")
+                {
+                    try
+                    {
+                        Worksheet.SaveAs(ExcelFilePath);
+                        Excel.Quit();
+                        //System.Windows.MessageBox.Show("Excel file saved!");
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteLog(ex.ToString());
+                        throw new Exception("ExportToExcel: Excel file could not be saved! Check filepath.\n"
+                            + ex.Message);
+                    }
+                }
+                else    // no filepath is given
+                {
+                    Excel.Visible = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex.ToString());
+                throw new Exception("ExportToExcel: \n" + ex.Message);
+            }
+        }
+
+        private static DataTable GetDataFromDB(string sqlString, SqlConnection connection)
+        {
+            try
+            {
+                DataTable dataTable = new DataTable();
+                using (SqlCommand cmd = new SqlCommand(sqlString, connection))
+                {
+                    dataTable.Load(cmd.ExecuteReader());
+                }
+                return dataTable;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex.ToString());
+                return null;
+            }
+        }
+
+        private void btnGenerateReport_Click(object sender, EventArgs e)
+        {
+            //Check input parameter
+            if (!CheckReportParameter())
+            {
+                MessageBox.Show("Missing parameter for report");
+                return;
+            }
+
+            using (var conn = new SqlConnection(ConfigurationManager.AppSettings["ConnectionString"]))
+            {
+                conn.Open();
+
+                //Generate header for report
+                SqlCommand command = new SqlCommand("GetNumberOfCaBetweenDate", conn);
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@FromDate", calFromDate.Value.Date.ToString("yyyy-MM-dd"));                
+                command.Parameters.AddWithValue("@ToDate", calToDate.Value.Date.ToString("yyyy-MM-dd"));
+                command.Parameters.AddWithValue("@UserName", txbReportUserName.Text);
+                command.Parameters.AddWithValue("@UserLevel", int.Parse(txbReportUserLevel.Text));
+                DataTable header = new DataTable();
+                header.Load(command.ExecuteReader());
+                ExportToExcel(header, ConfigurationManager.AppSettings["ReportHeaderFile"]);
+                command.Dispose();
+
+                //GenerateDetail
+                List<Category> categories = new List<Category>();
+                List<CA> CAs = new List<CA>();
+
+                //Get all category for current userLevel
+                string strSql = " Select Id, Category, SubCategory, Text, Note from Categories where UserLevel = " 
+                    + txbReportUserLevel.Text + " Order by Category, SubCategory";
+                DataTable cats = new DataTable();
+                command = new SqlCommand(strSql,conn);
+                cats.Load(command.ExecuteReader());
+                //Transform DataTable to List
+                if (cats.Rows.Count > 0)
+                    foreach (DataRow row in cats.Rows)
+                    {
+                        Category cat = new Category();
+                        cat.Id = int.Parse(row[0].ToString());
+                        cat.Cat = int.Parse(row[1].ToString());
+                        cat.SubCat = int.Parse(row[2].ToString());
+                        cat.Text = row[3].ToString();
+                        cat.Note = row[4].ToString();
+                        categories.Add(cat);
+                    }
+                command.Dispose();
+
+                //Get all CA for user between selected date
+                command = new SqlCommand("GetCaBetweenDate", conn);
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@FromDate", calFromDate.Value.Date.ToString("yyyy-MM-dd"));
+                command.Parameters.AddWithValue("@ToDate", calToDate.Value.Date.ToString("yyyy-MM-dd"));
+                command.Parameters.AddWithValue("@UserName", txbReportUserName.Text);                
+                DataTable details = new DataTable();
+                details.Load(command.ExecuteReader());
+                //Transform DataTable to List
+                if(details.Rows.Count >0)
+                    foreach(DataRow row in details.Rows)
+                    {
+                        CA ca = new CA();
+                        ca.Date = row[0].ToString();
+                        ca.CatId = int.Parse(row[1].ToString());
+                        ca.Summary = row[2].ToString();
+                        ca.Description = row[3].ToString();
+                        ca.Note = row[4].ToString();
+                        CAs.Add(ca);
+                    }
+                command.Dispose();
+
+                //Create results list for export to excel
+                DataTable results = new DataTable();
+                results.Columns.Add("Number", typeof(string));
+                results.Columns.Add("Content", typeof(string));
+                results.Columns.Add("Date", typeof(string));
+                results.Columns.Add("Name", typeof(string));
+                results.Columns.Add("Note", typeof(string));
+                foreach(var cat in categories)
+                {
+                    DataRow row = results.NewRow();
+                    if (cat.SubCat == 0)
+                        row[0] = cat.Note;
+                    else row[0] = cat.SubCat;
+                    row[1] = cat.Text;
+                    results.Rows.Add(row);
+
+                    int count = 1;
+                    foreach(var ca in CAs)
+                    {
+                        if(ca.CatId == cat.Id)
+                        {
+                            DataRow detailRow = results.NewRow();
+                            detailRow[0] = cat.SubCat.ToString() + "." + count.ToString();//Number
+                            detailRow[1] = "Tóm tắt: " + ca.Summary + ca.Description;//Content
+                            detailRow[2] = ca.Date;//Date
+                            detailRow[3] = txbReportName.Text;//Name
+                            detailRow[4] = ca.Note;//Note
+                            count++;
+                            results.Rows.Add(detailRow);
+                        }
+                    }
+                }
+
+                ExportToExcel(results, ConfigurationManager.AppSettings["ReportDetailFile"]);
+            }            
+        }
+
+        private bool CheckReportParameter()
+        {
+            if (string.IsNullOrWhiteSpace(txbReportName.Text))
+                return false;
+            if (string.IsNullOrWhiteSpace(txbReportUserName.Text))
+                return false;
+            if (string.IsNullOrWhiteSpace(calFromDate.Text))
+                return false;
+            if (string.IsNullOrWhiteSpace(calToDate.Text))
+                return false;
+            return true;
+        }
     }
+
+    public class CA
+    {
+        public int CatId;
+        public string Date;
+        public string Summary;
+        public string Description;
+        public string Note;        
+    }
+
+    public class Category
+    {
+        public int Id;
+        public int Cat;
+        public int SubCat;
+        public string Text;
+        public string Note;//Roman number of Category;
+    }    
 }

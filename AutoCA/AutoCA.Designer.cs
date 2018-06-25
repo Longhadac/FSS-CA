@@ -47,7 +47,20 @@
             this.label6 = new System.Windows.Forms.Label();
             this.txbAssignee = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.txbReportUserLevel = new System.Windows.Forms.TextBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.btnGenerateReport = new System.Windows.Forms.Button();
+            this.txbReportName = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.txbReportUserName = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.calToDate = new System.Windows.Forms.DateTimePicker();
+            this.label8 = new System.Windows.Forms.Label();
+            this.calFromDate = new System.Windows.Forms.DateTimePicker();
             this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -209,11 +222,122 @@
             this.label7.TabIndex = 16;
             this.label7.Text = "Assignee Position";
             // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.txbReportUserLevel);
+            this.groupBox2.Controls.Add(this.label12);
+            this.groupBox2.Controls.Add(this.btnGenerateReport);
+            this.groupBox2.Controls.Add(this.txbReportName);
+            this.groupBox2.Controls.Add(this.label11);
+            this.groupBox2.Controls.Add(this.label10);
+            this.groupBox2.Controls.Add(this.txbReportUserName);
+            this.groupBox2.Controls.Add(this.label9);
+            this.groupBox2.Controls.Add(this.calToDate);
+            this.groupBox2.Controls.Add(this.label8);
+            this.groupBox2.Controls.Add(this.calFromDate);
+            this.groupBox2.Location = new System.Drawing.Point(20, 278);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(496, 127);
+            this.groupBox2.TabIndex = 18;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Report";
+            // 
+            // txbReportUserLevel
+            // 
+            this.txbReportUserLevel.Location = new System.Drawing.Point(360, 70);
+            this.txbReportUserLevel.Name = "txbReportUserLevel";
+            this.txbReportUserLevel.Size = new System.Drawing.Size(121, 20);
+            this.txbReportUserLevel.TabIndex = 12;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(287, 73);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(58, 13);
+            this.label12.TabIndex = 11;
+            this.label12.Text = "User Level";
+            // 
+            // btnGenerateReport
+            // 
+            this.btnGenerateReport.Location = new System.Drawing.Point(89, 96);
+            this.btnGenerateReport.Name = "btnGenerateReport";
+            this.btnGenerateReport.Size = new System.Drawing.Size(392, 23);
+            this.btnGenerateReport.TabIndex = 10;
+            this.btnGenerateReport.Text = "Generate Report";
+            this.btnGenerateReport.UseVisualStyleBackColor = true;
+            this.btnGenerateReport.Click += new System.EventHandler(this.btnGenerateReport_Click);
+            // 
+            // txbReportName
+            // 
+            this.txbReportName.Location = new System.Drawing.Point(360, 45);
+            this.txbReportName.Name = "txbReportName";
+            this.txbReportName.Size = new System.Drawing.Size(121, 20);
+            this.txbReportName.TabIndex = 9;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(287, 48);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(35, 13);
+            this.label11.TabIndex = 8;
+            this.label11.Text = "Name";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(287, 22);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(57, 13);
+            this.label10.TabIndex = 6;
+            this.label10.Text = "UserName";
+            // 
+            // txbReportUserName
+            // 
+            this.txbReportUserName.Location = new System.Drawing.Point(360, 19);
+            this.txbReportUserName.Name = "txbReportUserName";
+            this.txbReportUserName.Size = new System.Drawing.Size(121, 20);
+            this.txbReportUserName.TabIndex = 7;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(8, 52);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(46, 13);
+            this.label9.TabIndex = 5;
+            this.label9.Text = "To Date";
+            // 
+            // calToDate
+            // 
+            this.calToDate.Location = new System.Drawing.Point(89, 47);
+            this.calToDate.Name = "calToDate";
+            this.calToDate.Size = new System.Drawing.Size(164, 20);
+            this.calToDate.TabIndex = 4;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(8, 26);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(56, 13);
+            this.label8.TabIndex = 3;
+            this.label8.Text = "From Date";
+            // 
+            // calFromDate
+            // 
+            this.calFromDate.Location = new System.Drawing.Point(89, 19);
+            this.calFromDate.Name = "calFromDate";
+            this.calFromDate.Size = new System.Drawing.Size(164, 20);
+            this.calFromDate.TabIndex = 0;
+            // 
             // AutoCA
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(576, 265);
+            this.ClientSize = new System.Drawing.Size(576, 410);
+            this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.txbAssignee);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.txbAffected);
@@ -233,6 +357,8 @@
             this.Text = "AutoCA";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -258,6 +384,18 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox txbAssignee;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.Button btnGenerateReport;
+        private System.Windows.Forms.TextBox txbReportName;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox txbReportUserName;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.DateTimePicker calToDate;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.DateTimePicker calFromDate;
+        private System.Windows.Forms.TextBox txbReportUserLevel;
+        private System.Windows.Forms.Label label12;
     }
 }
 
