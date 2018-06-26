@@ -22,6 +22,9 @@ namespace AutoCA
     {
         public static IWebDriver chromeDriver;
         public static SqlConnection sqlConnection;
+        public static bool firstClose = true;
+        public static bool firstCreate = true;
+        public static int speed = 1;
         public AutoCA()
         {
             InitializeComponent();
@@ -36,6 +39,14 @@ namespace AutoCA
 
             txbReportName.Text = ConfigurationManager.AppSettings["ReportName"];
             txbReportUserName.Text = ConfigurationManager.AppSettings["ReportUserName"];
+            txtResult.Text = ConfigurationManager.AppSettings["SolutionResult"];
+            txbReportUserLevel.Text = ConfigurationManager.AppSettings["UserLevel"];
+            try
+            {
+                speed = int.Parse(txbSpeed.Text);
+            }
+            catch { speed = 1; }
+
         }
 
         private void btnCreate_Click(object sender, EventArgs e)
@@ -62,6 +73,7 @@ namespace AutoCA
                 data.AcceptChanges();
 
                 //Create request
+                ConnectAndSignIn();
                 if (data.Rows.Count > 0)
                 {
                     try
@@ -88,7 +100,6 @@ namespace AutoCA
                         string caDate = row[7].ToString();
 
                         //Create ticket on CA site                        
-                        ConnectAndSignIn();
                         CreateRequest(summary, description, requestArea, rootCause, txbName.Text, txbGroup.Text);
 
                         //Insert ticket to DB for reporting
@@ -96,6 +107,9 @@ namespace AutoCA
                     }
                     sqlConnection.Close();
                     sqlConnection.Dispose();
+
+                    //
+                    WriteLog("Finish create tickets");
                 }
                 else
                     WriteLog("Excel file doesnot contain data");
@@ -103,25 +117,28 @@ namespace AutoCA
                 //Close Request
                 if (ckbAutoClose.Checked == true)
                 {
+                    ConnectAndSignIn();
                     while (true)
                     {
                         try
                         {
-                            ConnectAndSignIn();
+                            //ConnectAndSignIn();
                             CloseTicket(txtResult.Text);
                         }
                         catch
                         {
+                            WriteLog("Error when close ticket");
                             break;
                         }
                     }
                 }
             }
-
             catch (Exception ex)
             {
                 WriteLog(ex.ToString());
             }
+            chromeDriver.Close();
+            chromeDriver.Dispose();
         }
 
         private void ConnectAndSignIn()
@@ -138,14 +155,22 @@ namespace AutoCA
         private void CreateRequest(string summary, string description, string requestName,
             string rootCauseName, string userName, string groupName)
         {
-            Thread.Sleep(5000);
-
+            Thread.Sleep(5000/speed);
+            
             Actions selectFileMenu = new Actions(chromeDriver);
-            selectFileMenu.SendKeys(OpenQA.Selenium.Keys.LeftAlt + "f").Build().Perform();
+            selectFileMenu.SendKeys(OpenQA.Selenium.Keys.LeftAlt + "f").Build().Perform();            
             Actions selectNewRequest = new Actions(chromeDriver);
+            if (!firstCreate)
+            {
+                selectFileMenu.Release();
+                selectFileMenu = new Actions(chromeDriver);
+                selectFileMenu.SendKeys(OpenQA.Selenium.Keys.LeftAlt + "f").Build().Perform();
+                selectNewRequest.Release();
+                selectNewRequest = new Actions(chromeDriver);
+            }
             selectNewRequest.SendKeys(OpenQA.Selenium.Keys.LeftAlt + "n").Build().Perform();
 
-            Thread.Sleep(2000);
+            Thread.Sleep(2000/speed);
             //Go to frame which contains infor that we need to provide
             IWebElement product = chromeDriver.FindElement(By.Name("product"));
             chromeDriver.SwitchTo().Frame(product);
@@ -178,18 +203,23 @@ namespace AutoCA
             Thread.Sleep(500);
             chromeDriver.FindElement(By.XPath("/html/body/ul[3]/li/a")).Click();
 
-            Thread.Sleep(1000);
+            Thread.Sleep(1000/speed);
             selectNewRequest = new Actions(chromeDriver);
             selectNewRequest.SendKeys(OpenQA.Selenium.Keys.LeftAlt + "s").Build().Perform();
 
-            Thread.Sleep(5000);
-            chromeDriver.Close();
-            chromeDriver.Dispose();
+            Thread.Sleep(5000/speed);            
+            //chromeDriver.Close();
+            //chromeDriver.Dispose();
+            chromeDriver.SwitchTo().ParentFrame();
+            chromeDriver.SwitchTo().ParentFrame();
+            chromeDriver.SwitchTo().ParentFrame();
+            chromeDriver.SwitchTo().ParentFrame();
+            firstCreate = false;
         }
 
         private void CloseTicket(string result)
         {
-            Thread.Sleep(5000);//Wait for loading page
+            Thread.Sleep(5000/speed);//Wait for loading page
 
             //Go to frame which contains infor that we need to provide
             IWebElement product = chromeDriver.FindElement(By.Name("product"));
@@ -201,8 +231,11 @@ namespace AutoCA
             IWebElement scoreboard = chromeDriver.FindElement(By.Id("scoreboard"));
             chromeDriver.SwitchTo().Frame(scoreboard);
 
-            chromeDriver.FindElement(By.XPath("//*[@id='s4pm']/span[2]")).Click();//My assign ticket
-            chromeDriver.FindElement(By.XPath("//*[@id='s14pm']/span[2]")).Click();//Request
+            if(firstClose)
+            {
+                chromeDriver.FindElement(By.XPath("//*[@id='s4pm']/span[2]")).Click();//My assign ticket
+                chromeDriver.FindElement(By.XPath("//*[@id='s14pm']/span[2]")).Click();//Request
+            }
             chromeDriver.FindElement(By.XPath("//*[@id='s15ds']/span")).Click();//Open request
 
             //Switch back to parent frame then go to frame containts all open ticket
@@ -210,17 +243,28 @@ namespace AutoCA
             IWebElement cai_main = chromeDriver.FindElement(By.Id("cai_main"));
             chromeDriver.SwitchTo().Frame(cai_main);
 
-            Thread.Sleep(1000);
+            Thread.Sleep(1000/speed);
             WriteLog("Closing Ticket: " + chromeDriver.FindElement(By.XPath("//*[@id='rslnk_0_0']")).Text);
             chromeDriver.FindElement(By.XPath("//*[@id='rslnk_0_0']")).Click();
 
-            Thread.Sleep(2000);
+            Thread.Sleep(2000/speed);
             Actions activityMenu = new Actions(chromeDriver);
             activityMenu.SendKeys(OpenQA.Selenium.Keys.LeftAlt + "t").Build().Perform();
             Actions updateStatusMenu = new Actions(chromeDriver);
-            updateStatusMenu.SendKeys(OpenQA.Selenium.Keys.LeftAlt + "u").Build().Perform();
+            if(firstClose)
+                updateStatusMenu.SendKeys(OpenQA.Selenium.Keys.LeftAlt + "u").Build().Perform();
+            else
+            {
+                activityMenu.Release();
+                activityMenu = new Actions(chromeDriver);
+                activityMenu.SendKeys(OpenQA.Selenium.Keys.LeftAlt + "t").Build().Perform();
+                updateStatusMenu.Release();
+                updateStatusMenu = new Actions(chromeDriver);
+                updateStatusMenu.SendKeys(OpenQA.Selenium.Keys.LeftAlt + "u").Build().Perform();
+            }
 
-            Thread.Sleep(5000);
+
+            Thread.Sleep(5000/speed);
             //Tick internal
             chromeDriver.FindElement(By.Id("df_2_3")).Click();
             //Choose closed
@@ -230,9 +274,14 @@ namespace AutoCA
             Actions saveNewStatus = new Actions(chromeDriver);
             saveNewStatus.SendKeys(OpenQA.Selenium.Keys.LeftAlt + "s").Build().Perform();
 
-            Thread.Sleep(5000);
-            chromeDriver.Close();
-            chromeDriver.Dispose();
+            Thread.Sleep(5000/speed);
+            chromeDriver.SwitchTo().ParentFrame();
+            chromeDriver.SwitchTo().ParentFrame();
+            chromeDriver.SwitchTo().ParentFrame();
+            chromeDriver.SwitchTo().ParentFrame();
+            firstClose = false;
+            //chromeDriver.Close();
+            //chromeDriver.Dispose();
         }
 
         private bool CheckInputData()
@@ -305,8 +354,8 @@ namespace AutoCA
         {
             try
             {
-                string command = "INSERT INTO DBO.CA (UserName, CADate, CatId, Summary, [Description], RequestArea, RootCause) "
-                + "VALUES (@userName,@caDate,@catId,@summary,@description,@requestArea,@rootCause)";
+                string command = "INSERT INTO DBO.CA (UserName, CADate, CatId, Summary, [Description], RequestArea, RootCause, Note) "
+                + "VALUES (@userName,@caDate,@catId,@summary,@description,@requestArea,@rootCause, @note)";
                 SqlCommand sqlCommand = new SqlCommand(command, sqlCon);
                 sqlCommand.Parameters.AddWithValue("@userName", txbUserName.Text);
                 sqlCommand.Parameters.AddWithValue("@caDate", CADate);
@@ -315,6 +364,7 @@ namespace AutoCA
                 sqlCommand.Parameters.AddWithValue("@description", Description);
                 sqlCommand.Parameters.AddWithValue("@requestArea", RequestArea);
                 sqlCommand.Parameters.AddWithValue("@rootCause", RootCause);
+                sqlCommand.Parameters.AddWithValue("@note", txtResult.Text);
 
                 sqlCommand.ExecuteNonQuery();
             }
@@ -364,7 +414,8 @@ namespace AutoCA
                 for (int i = 0; i < ColumnsCount; i++)
                     Header[i] = DataTable.Columns[i].ColumnName;
 
-                Microsoft.Office.Interop.Excel.Range HeaderRange = Worksheet.get_Range((Microsoft.Office.Interop.Excel.Range)(Worksheet.Cells[1, 1]), (Microsoft.Office.Interop.Excel.Range)(Worksheet.Cells[1, ColumnsCount]));
+                Microsoft.Office.Interop.Excel.Range HeaderRange = Worksheet.get_Range((Microsoft.Office.Interop.Excel.Range)
+                    (Worksheet.Cells[1, 1]), (Microsoft.Office.Interop.Excel.Range)(Worksheet.Cells[1, ColumnsCount]));
                 HeaderRange.Value = Header;
                 HeaderRange.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.LightGray);
                 HeaderRange.Font.Bold = true;
@@ -377,7 +428,8 @@ namespace AutoCA
                     for (int i = 0; i < ColumnsCount; i++)
                         Cells[j, i] = DataTable.Rows[j][i];
 
-                Worksheet.get_Range((Microsoft.Office.Interop.Excel.Range)(Worksheet.Cells[2, 1]), (Microsoft.Office.Interop.Excel.Range)(Worksheet.Cells[RowsCount + 1, ColumnsCount])).Value = Cells;
+                Worksheet.get_Range((Microsoft.Office.Interop.Excel.Range)(Worksheet.Cells[2, 1]), 
+                    (Microsoft.Office.Interop.Excel.Range)(Worksheet.Cells[RowsCount + 1, ColumnsCount])).Value = Cells;
                 Worksheet.Columns.AutoFit();//Extend column width if necessary
                 // check fielpath
                 if (ExcelFilePath != null && ExcelFilePath != "")
@@ -519,7 +571,7 @@ namespace AutoCA
                         {
                             DataRow detailRow = results.NewRow();
                             detailRow[0] = cat.SubCat.ToString() + "." + count.ToString();//Number
-                            detailRow[1] = "Tóm tắt: " + ca.Summary + ca.Description;//Content
+                            detailRow[1] = "Tóm tắt: " + ca.Summary +"\r\n"+ ca.Description;//Content
                             detailRow[2] = ca.Date;//Date
                             detailRow[3] = txbReportName.Text;//Name
                             detailRow[4] = ca.Note;//Note
@@ -528,9 +580,9 @@ namespace AutoCA
                         }
                     }
                 }
-
                 ExportToExcel(results, ConfigurationManager.AppSettings["ReportDetailFile"]);
-            }            
+            }
+            MessageBox.Show("Excel files created");
         }
 
         private bool CheckReportParameter()

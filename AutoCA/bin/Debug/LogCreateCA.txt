@@ -1,0 +1,134 @@
+Monday, June 25, 2018 3:07:50 PM: Closing Ticket: 680680
+Monday, June 25, 2018 3:34:20 PM: Finish create tickets
+Monday, June 25, 2018 3:56:38 PM: OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"name","selector":"product"}
+  (Session info: chrome=67.0.3396.87)
+  (Driver info: chromedriver=2.37.544315 (730aa6a5fdba159ac9f4c1e8cbc59bf1b5ce12b7),platform=Windows NT 10.0.17134 x86_64)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.UnpackAndThrowOnError(Response errorResponse)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.FindElementByName(String name)
+   at OpenQA.Selenium.By.<>c__DisplayClass18_0.<Name>b__0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.FindElement(By by)
+   at AutoCA.AutoCA.CreateRequest(String summary, String description, String requestName, String rootCauseName, String userName, String groupName) in C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\AutoCA.cs:line 159
+   at AutoCA.AutoCA.btnCreate_Click(Object sender, EventArgs e) in C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\AutoCA.cs:line 96
+Monday, June 25, 2018 4:01:17 PM: OpenQA.Selenium.UnhandledAlertException: unexpected alert open: {Alert text : 1 window is still in edit mode.
+Press OK to close the window and continue the logout or
+press Cancel to cancel the logout.}
+  (Session info: chrome=67.0.3396.87)
+  (Driver info: chromedriver=2.37.544315 (730aa6a5fdba159ac9f4c1e8cbc59bf1b5ce12b7),platform=Windows NT 10.0.17134 x86_64)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.UnpackAndThrowOnError(Response errorResponse)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.FindElementByXPath(String xpath)
+   at OpenQA.Selenium.By.<>c__DisplayClass19_0.<XPath>b__0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.FindElement(By by)
+   at AutoCA.AutoCA.CreateRequest(String summary, String description, String requestName, String rootCauseName, String userName, String groupName) in C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\AutoCA.cs:line 172
+   at AutoCA.AutoCA.btnCreate_Click(Object sender, EventArgs e) in C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\AutoCA.cs:line 96
+Monday, June 25, 2018 4:05:12 PM: OpenQA.Selenium.UnhandledAlertException: unexpected alert open: {Alert text : 1 window is still in edit mode.
+Press OK to close the window and continue the logout or
+press Cancel to cancel the logout.}
+  (Session info: chrome=67.0.3396.87)
+  (Driver info: chromedriver=2.37.544315 (730aa6a5fdba159ac9f4c1e8cbc59bf1b5ce12b7),platform=Windows NT 10.0.17134 x86_64)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.UnpackAndThrowOnError(Response errorResponse)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.FindElementByXPath(String xpath)
+   at OpenQA.Selenium.By.<>c__DisplayClass19_0.<XPath>b__0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.FindElement(By by)
+   at AutoCA.AutoCA.CreateRequest(String summary, String description, String requestName, String rootCauseName, String userName, String groupName) in C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\AutoCA.cs:line 172
+   at AutoCA.AutoCA.btnCreate_Click(Object sender, EventArgs e) in C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\AutoCA.cs:line 96
+Monday, June 25, 2018 4:21:13 PM: OpenQA.Selenium.WebDriverException: no such session
+  (Driver info: chromedriver=2.37.544315 (730aa6a5fdba159ac9f4c1e8cbc59bf1b5ce12b7),platform=Windows NT 10.0.17134 x86_64)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.UnpackAndThrowOnError(Response errorResponse)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.get_WindowHandles()
+   at AutoCA.AutoCA.CreateRequest(String summary, String description, String requestName, String rootCauseName, String userName, String groupName) in C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\AutoCA.cs:line 198
+   at AutoCA.AutoCA.btnCreate_Click(Object sender, EventArgs e) in C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\AutoCA.cs:line 96
+Monday, June 25, 2018 4:30:52 PM: Finish create tickets
+Monday, June 25, 2018 4:31:04 PM: Closing Ticket: 681818
+Monday, June 25, 2018 4:31:21 PM: Error when close ticket
+Monday, June 25, 2018 4:34:49 PM: Finish create tickets
+Monday, June 25, 2018 4:35:01 PM: Closing Ticket: 681816
+Monday, June 25, 2018 4:35:19 PM: Error when close ticket
+Monday, June 25, 2018 4:35:42 PM: Finish create tickets
+Monday, June 25, 2018 4:36:09 PM: Closing Ticket: 681814
+Monday, June 25, 2018 4:41:49 PM: Finish create tickets
+Monday, June 25, 2018 4:42:04 PM: Closing Ticket: 681789
+Monday, June 25, 2018 4:44:15 PM: Finish create tickets
+Monday, June 25, 2018 4:44:30 PM: Closing Ticket: 681751
+Monday, June 25, 2018 4:45:20 PM: Closing Ticket: 681738
+Monday, June 25, 2018 4:45:27 PM: Error when close ticket
+Monday, June 25, 2018 4:47:58 PM: Finish create tickets
+Monday, June 25, 2018 4:48:12 PM: Closing Ticket: 681738
+Monday, June 25, 2018 4:48:53 PM: Closing Ticket: 681730
+Monday, June 25, 2018 4:50:45 PM: Finish create tickets
+Monday, June 25, 2018 4:51:00 PM: Closing Ticket: 681730
+Monday, June 25, 2018 4:51:07 PM: Error when close ticket
+Monday, June 25, 2018 4:52:48 PM: Finish create tickets
+Monday, June 25, 2018 4:53:03 PM: Closing Ticket: 681730
+Monday, June 25, 2018 4:53:35 PM: Closing Ticket: 681720
+Monday, June 25, 2018 4:56:51 PM: Finish create tickets
+Monday, June 25, 2018 4:57:08 PM: Closing Ticket: 681720
+Monday, June 25, 2018 4:57:40 PM: Closing Ticket: 680680
+Monday, June 25, 2018 4:58:14 PM: Error when close ticket
+Monday, June 25, 2018 4:59:03 PM: Finish create tickets
+Monday, June 25, 2018 4:59:36 PM: Closing Ticket: 680680
+Monday, June 25, 2018 5:00:50 PM: Finish create tickets
+Monday, June 25, 2018 5:01:03 PM: Closing Ticket: 680680
+Monday, June 25, 2018 5:01:29 PM: Closing Ticket: 680678
+Monday, June 25, 2018 5:05:51 PM: Finish create tickets
+Monday, June 25, 2018 5:06:37 PM: Closing Ticket: 680678
+Monday, June 25, 2018 5:07:23 PM: Closing Ticket: 680675
+Monday, June 25, 2018 5:10:09 PM: Finish create tickets
+Monday, June 25, 2018 5:10:24 PM: Closing Ticket: 680675
+Monday, June 25, 2018 5:10:48 PM: Closing Ticket: 680674
+Monday, June 25, 2018 5:11:58 PM: Finish create tickets
+Monday, June 25, 2018 5:12:12 PM: Closing Ticket: 680674
+Monday, June 25, 2018 5:12:35 PM: Closing Ticket: 680673
+Monday, June 25, 2018 5:13:43 PM: Finish create tickets
+Monday, June 25, 2018 5:13:59 PM: Closing Ticket: 680673
+Monday, June 25, 2018 5:14:23 PM: Closing Ticket: 680672
+Monday, June 25, 2018 5:20:56 PM: Finish create tickets
+Monday, June 25, 2018 5:21:17 PM: Closing Ticket: 680672
+Monday, June 25, 2018 5:21:39 PM: Closing Ticket: 680669
+Monday, June 25, 2018 5:23:21 PM: Finish create tickets
+Monday, June 25, 2018 5:23:48 PM: Closing Ticket: 680669
+Monday, June 25, 2018 5:24:10 PM: Closing Ticket: 680668
+Monday, June 25, 2018 5:24:47 PM: Error when close ticket
+Tuesday, June 26, 2018 5:39:16 PM: OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"xpath","selector":"/html/body/ul[3]/li/a"}
+  (Session info: chrome=67.0.3396.87)
+  (Driver info: chromedriver=2.37.544315 (730aa6a5fdba159ac9f4c1e8cbc59bf1b5ce12b7),platform=Windows NT 10.0.17134 x86_64)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.UnpackAndThrowOnError(Response errorResponse)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.FindElementByXPath(String xpath)
+   at OpenQA.Selenium.By.<>c__DisplayClass19_0.<XPath>b__0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.FindElement(By by)
+   at AutoCA.AutoCA.CreateRequest(String summary, String description, String requestName, String rootCauseName, String userName, String groupName) in C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\AutoCA.cs:line 188
+   at AutoCA.AutoCA.btnCreate_Click(Object sender, EventArgs e) in C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\AutoCA.cs:line 95
+Tuesday, June 26, 2018 5:41:34 PM: OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"xpath","selector":"/html/body/ul[3]/li/a"}
+  (Session info: chrome=67.0.3396.87)
+  (Driver info: chromedriver=2.37.544315 (730aa6a5fdba159ac9f4c1e8cbc59bf1b5ce12b7),platform=Windows NT 10.0.17134 x86_64)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.UnpackAndThrowOnError(Response errorResponse)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.FindElementByXPath(String xpath)
+   at OpenQA.Selenium.By.<>c__DisplayClass19_0.<XPath>b__0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.Remote.RemoteWebDriver.FindElement(By by)
+   at AutoCA.AutoCA.CreateRequest(String summary, String description, String requestName, String rootCauseName, String userName, String groupName) in C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\AutoCA.cs:line 188
+   at AutoCA.AutoCA.btnCreate_Click(Object sender, EventArgs e) in C:\Users\Longhd\source\repos\FSS-CA-master\FSS-CA-master\AutoCA\AutoCA.cs:line 95
+Tuesday, June 26, 2018 5:51:41 PM: Finish create tickets
+Tuesday, June 26, 2018 5:51:56 PM: Closing Ticket: 683261
+Tuesday, June 26, 2018 5:52:15 PM: Closing Ticket: 683260
+Tuesday, June 26, 2018 5:52:34 PM: Closing Ticket: 683248
+Tuesday, June 26, 2018 5:52:53 PM: Closing Ticket: 683247
+Tuesday, June 26, 2018 5:53:11 PM: Closing Ticket: 683246
+Tuesday, June 26, 2018 5:53:30 PM: Closing Ticket: 683244
+Tuesday, June 26, 2018 5:53:50 PM: Closing Ticket: 683242
+Tuesday, June 26, 2018 5:54:09 PM: Closing Ticket: 683238
+Tuesday, June 26, 2018 5:54:28 PM: Error when close ticket

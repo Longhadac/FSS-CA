@@ -59,6 +59,8 @@
             this.calToDate = new System.Windows.Forms.DateTimePicker();
             this.label8 = new System.Windows.Forms.Label();
             this.calFromDate = new System.Windows.Forms.DateTimePicker();
+            this.label13 = new System.Windows.Forms.Label();
+            this.txbSpeed = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -166,7 +168,6 @@
             this.txtResult.Name = "txtResult";
             this.txtResult.Size = new System.Drawing.Size(295, 20);
             this.txtResult.TabIndex = 11;
-            this.txtResult.Text = "Đã thực hiện.";
             // 
             // btnClose
             // 
@@ -332,11 +333,33 @@
             this.calFromDate.Size = new System.Drawing.Size(164, 20);
             this.calFromDate.TabIndex = 0;
             // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.ForeColor = System.Drawing.Color.Red;
+            this.label13.Location = new System.Drawing.Point(368, 250);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(115, 13);
+            this.label13.TabIndex = 19;
+            this.label13.Text = "Make everything faster";
+            // 
+            // txbSpeed
+            // 
+            this.txbSpeed.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.txbSpeed.ForeColor = System.Drawing.Color.Red;
+            this.txbSpeed.Location = new System.Drawing.Point(489, 247);
+            this.txbSpeed.Name = "txbSpeed";
+            this.txbSpeed.Size = new System.Drawing.Size(27, 20);
+            this.txbSpeed.TabIndex = 20;
+            this.txbSpeed.Text = "1";
+            // 
             // AutoCA
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(576, 410);
+            this.Controls.Add(this.txbSpeed);
+            this.Controls.Add(this.label13);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.txbAssignee);
             this.Controls.Add(this.label7);
@@ -396,6 +419,8 @@
         private System.Windows.Forms.DateTimePicker calFromDate;
         private System.Windows.Forms.TextBox txbReportUserLevel;
         private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.TextBox txbSpeed;
     }
 }
 
