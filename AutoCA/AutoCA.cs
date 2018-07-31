@@ -4,24 +4,22 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Data.OleDb;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System.Threading;
 using OpenQA.Selenium.Interactions;
-using System.Data.SqlClient;
+using System.Data.SQLite;
 
 namespace AutoCA
 {
     public partial class AutoCA : Form
     {
         public static IWebDriver chromeDriver;
-        public static SqlConnection sqlConnection;
+        public static SQLiteConnection sqlConnection;
         public static bool firstClose = true;
         public static bool firstCreate = true;
         public static int speed = 1;
@@ -78,7 +76,7 @@ namespace AutoCA
                 {
                     try
                     {
-                        sqlConnection = new SqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
+                        sqlConnection = new SQLiteConnection(ConfigurationManager.AppSettings["ConnectionString"]);
                         sqlConnection.Open();
                     }
                     catch (Exception ex)
@@ -92,23 +90,23 @@ namespace AutoCA
                             continue;
 
                         //Parsing Data
-                        string summary = row[1].ToString();
+                        string summary = row[5].ToString();
                         string description = row[2].ToString();
-                        string requestArea = row[3].ToString();
-                        string rootCause = row[4].ToString();
-                        int catId = int.Parse(row[6].ToString());
-                        string caDate = row[7].ToString();
+                        string requestArea = row[6].ToString();
+                        string rootCause = row[7].ToString();
+                        int catId = int.Parse(row[3].ToString());
+                        string caDate = row[1].ToString();
 
                         //Create ticket on CA site                        
                         CreateRequest(summary, description, requestArea, rootCause, txbName.Text, txbGroup.Text);
 
                         //Insert ticket to DB for reporting
-                        InsertDataToDB(sqlConnection, caDate, catId, summary, description, requestArea, rootCause);
+                        InsertDataToDB(sqlConnection, caDate, catId, summary, description);
                     }
                     sqlConnection.Close();
                     sqlConnection.Dispose();
-
-                    //
+                    chromeDriver.Close();
+                    chromeDriver.Dispose();
                     WriteLog("Finish create tickets");
                 }
                 else
@@ -146,7 +144,8 @@ namespace AutoCA
             chromeDriver = new ChromeDriver();
             chromeDriver.Manage().Window.Maximize();
             chromeDriver.Url = "https://hotro.tct.vn/CAisd/SD";
-
+            //chromeDriver.Url = "http://10.64.85.164/CAisd/SD";
+            
             chromeDriver.FindElement(By.Id("USERNAME")).SendKeys(txbUserName.Text);
             chromeDriver.FindElement(By.Id("PIN")).SendKeys(txbPassword.Text);
             chromeDriver.FindElement(By.Name("imgBtn0")).Click();
@@ -349,21 +348,20 @@ namespace AutoCA
             chromeDriver.Dispose();
         }
 
-        private void InsertDataToDB(SqlConnection sqlCon, string CADate, int CatId, string Summary,
-            string Description, string RequestArea, string RootCause)
+        private void InsertDataToDB(SQLiteConnection sqlCon, string CADate, int CatId, string Summary,
+            string Description)
         {
             try
             {
-                string command = "INSERT INTO DBO.CA (UserName, CADate, CatId, Summary, [Description], RequestArea, RootCause, Note) "
-                + "VALUES (@userName,@caDate,@catId,@summary,@description,@requestArea,@rootCause, @note)";
-                SqlCommand sqlCommand = new SqlCommand(command, sqlCon);
+                string command = "INSERT INTO CA (UserName,CreatedDate, CADate, CatId, Summary, [Description]) "
+                + "VALUES (@userName,@createdDate,@caDate,@catId,@summary,@description)";
+                SQLiteCommand sqlCommand = new SQLiteCommand(command, sqlCon);
                 sqlCommand.Parameters.AddWithValue("@userName", txbUserName.Text);
+                sqlCommand.Parameters.AddWithValue("@createdDate", DateTime.Now.ToString("yyyyMMdd"));
                 sqlCommand.Parameters.AddWithValue("@caDate", CADate);
                 sqlCommand.Parameters.AddWithValue("@catId", CatId);
                 sqlCommand.Parameters.AddWithValue("@summary", Summary);
                 sqlCommand.Parameters.AddWithValue("@description", Description);
-                sqlCommand.Parameters.AddWithValue("@requestArea", RequestArea);
-                sqlCommand.Parameters.AddWithValue("@rootCause", RootCause);
                 sqlCommand.Parameters.AddWithValue("@note", txtResult.Text);
 
                 sqlCommand.ExecuteNonQuery();
@@ -459,12 +457,12 @@ namespace AutoCA
             }
         }
 
-        private static DataTable GetDataFromDB(string sqlString, SqlConnection connection)
+        private static DataTable GetDataFromDB(string sqlString, SQLiteConnection connection)
         {
             try
             {
                 DataTable dataTable = new DataTable();
-                using (SqlCommand cmd = new SqlCommand(sqlString, connection))
+                using (SQLiteCommand cmd = new SQLiteCommand(sqlString, connection))
                 {
                     dataTable.Load(cmd.ExecuteReader());
                 }
@@ -479,112 +477,129 @@ namespace AutoCA
 
         private void btnGenerateReport_Click(object sender, EventArgs e)
         {
-            //Check input parameter
-            if (!CheckReportParameter())
-            {
-                MessageBox.Show("Missing parameter for report");
-                return;
-            }
-
-            using (var conn = new SqlConnection(ConfigurationManager.AppSettings["ConnectionString"]))
-            {
-                conn.Open();
-
-                //Generate header for report
-                SqlCommand command = new SqlCommand("GetNumberOfCaBetweenDate", conn);
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@FromDate", calFromDate.Value.Date.ToString("yyyy-MM-dd"));                
-                command.Parameters.AddWithValue("@ToDate", calToDate.Value.Date.ToString("yyyy-MM-dd"));
-                command.Parameters.AddWithValue("@UserName", txbReportUserName.Text);
-                command.Parameters.AddWithValue("@UserLevel", int.Parse(txbReportUserLevel.Text));
-                DataTable header = new DataTable();
-                header.Load(command.ExecuteReader());
-                ExportToExcel(header, ConfigurationManager.AppSettings["ReportHeaderFile"]);
-                command.Dispose();
-
-                //GenerateDetail
-                List<Category> categories = new List<Category>();
-                List<CA> CAs = new List<CA>();
-
-                //Get all category for current userLevel
-                string strSql = " Select Id, Category, SubCategory, Text, Note from Categories where UserLevel = " 
-                    + txbReportUserLevel.Text + " Order by Category, SubCategory";
-                DataTable cats = new DataTable();
-                command = new SqlCommand(strSql,conn);
-                cats.Load(command.ExecuteReader());
-                //Transform DataTable to List
-                if (cats.Rows.Count > 0)
-                    foreach (DataRow row in cats.Rows)
-                    {
-                        Category cat = new Category();
-                        cat.Id = int.Parse(row[0].ToString());
-                        cat.Cat = int.Parse(row[1].ToString());
-                        cat.SubCat = int.Parse(row[2].ToString());
-                        cat.Text = row[3].ToString();
-                        cat.Note = row[4].ToString();
-                        categories.Add(cat);
-                    }
-                command.Dispose();
-
-                //Get all CA for user between selected date
-                command = new SqlCommand("GetCaBetweenDate", conn);
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@FromDate", calFromDate.Value.Date.ToString("yyyy-MM-dd"));
-                command.Parameters.AddWithValue("@ToDate", calToDate.Value.Date.ToString("yyyy-MM-dd"));
-                command.Parameters.AddWithValue("@UserName", txbReportUserName.Text);                
-                DataTable details = new DataTable();
-                details.Load(command.ExecuteReader());
-                //Transform DataTable to List
-                if(details.Rows.Count >0)
-                    foreach(DataRow row in details.Rows)
-                    {
-                        CA ca = new CA();
-                        ca.Date = row[0].ToString();
-                        ca.CatId = int.Parse(row[1].ToString());
-                        ca.Summary = row[2].ToString();
-                        ca.Description = row[3].ToString();
-                        ca.Note = row[4].ToString();
-                        CAs.Add(ca);
-                    }
-                command.Dispose();
-
-                //Create results list for export to excel
-                DataTable results = new DataTable();
-                results.Columns.Add("Number", typeof(string));
-                results.Columns.Add("Content", typeof(string));
-                results.Columns.Add("Date", typeof(string));
-                results.Columns.Add("Name", typeof(string));
-                results.Columns.Add("Note", typeof(string));
-                foreach(var cat in categories)
-                {
-                    DataRow row = results.NewRow();
-                    if (cat.SubCat == 0)
-                        row[0] = cat.Note;
-                    else row[0] = cat.SubCat;
-                    row[1] = cat.Text;
-                    results.Rows.Add(row);
-
-                    int count = 1;
-                    foreach(var ca in CAs)
-                    {
-                        if(ca.CatId == cat.Id)
-                        {
-                            DataRow detailRow = results.NewRow();
-                            detailRow[0] = cat.SubCat.ToString() + "." + count.ToString();//Number
-                            detailRow[1] = "Tóm tắt: " + ca.Summary +"\r\n"+ ca.Description;//Content
-                            detailRow[2] = ca.Date;//Date
-                            detailRow[3] = txbReportName.Text;//Name
-                            detailRow[4] = ca.Note;//Note
-                            count++;
-                            results.Rows.Add(detailRow);
-                        }
-                    }
-                }
-                ExportToExcel(results, ConfigurationManager.AppSettings["ReportDetailFile"]);
-            }
+            SQLiteConnection sqlConnection = new 
+                SQLiteConnection(ConfigurationManager.AppSettings["ConnectionString"]);
+            sqlConnection.Open();
+            GenerateHeader(sqlConnection);
+            GenerateDetail(sqlConnection);
             MessageBox.Show("Excel files created");
         }
 
+        private void GenerateHeader(SQLiteConnection sqlCon)
+        {
+            string sql = "SELECT Cat.Cat,Cat.SubCat,Cat.Content, ifnull(A.TOTAL,0) AS TOTAL ";
+            sql += "FROM CATEGORIES Cat LEFT JOIN ";
+            sql += "(SELECT B.Cat, 0 as SubCat, count(*) AS TOTAL ";
+            sql += "FROM CA A inner join CATEGORIES B ON A.CatId = B.Id ";
+            sql += "WHERE A.CADate between @FromDate and @ToDate and A.UserName = @UserName ";
+            sql += "GROUP BY B.Cat ";
+            sql += "UNION ";
+            sql += "SELECT B.Cat, B.SubCat, count(*) AS TOTAL ";
+            sql += "FROM CA A inner join CATEGORIES B ON A.CatId = B.Id ";
+            sql += "WHERE A.CADate between @FromDate and @ToDate and A.UserName = @UserName ";
+            sql += "GROUP BY B.Cat,B.SubCat) A ";
+            sql += "ON Cat.Cat = A.Cat AND Cat.SubCat = A.SubCat ";
+            sql += "WHERE Cat.UserLevel = @UserLevel ";
+            sql += "ORDER BY Cat.Cat, Cat.SubCat ";
+
+            SQLiteCommand sqlCommand = new SQLiteCommand(sql, sqlCon);
+            sqlCommand.Parameters.AddWithValue("@FromDate", calFromDate.Value.Date.ToString("yyyyMMdd"));
+            sqlCommand.Parameters.AddWithValue("@ToDate", calToDate.Value.Date.ToString("yyyyMMdd"));
+            sqlCommand.Parameters.AddWithValue("@UserName", txbReportUserName.Text);
+            sqlCommand.Parameters.AddWithValue("@UserLevel", int.Parse(txbReportUserLevel.Text));
+
+            DataTable header = new DataTable();
+            header.Load(sqlCommand.ExecuteReader());
+            ExportToExcel(header, ConfigurationManager.AppSettings["ReportHeaderFile"]);
+            sqlCommand.Dispose();
+        }
+
+        private void GenerateDetail(SQLiteConnection sqlCon)
+        {
+            List<Category> categories = new List<Category>();
+            List<CA> CAs = new List<CA>();
+
+            //Get list of Categories
+            string strSql = "SELECT Id,Cat,SubCat,Content FROM CATEGORIES WHERE UserLevel = "
+                + txbReportUserLevel.Text + " ORDER BY Cat,SubCat";
+            DataTable cats = new DataTable();
+            SQLiteCommand command = new SQLiteCommand(strSql, sqlCon);
+            cats.Load(command.ExecuteReader());
+            //Transform to list for processing
+            if (cats.Rows.Count > 0)
+                foreach (DataRow row in cats.Rows)
+                {
+                    Category cat = new Category();
+                    cat.Id = int.Parse(row[0].ToString());
+                    cat.Cat = int.Parse(row[1].ToString());
+                    cat.SubCat = row[2].ToString();
+                    cat.Content = row[3].ToString();
+                    categories.Add(cat);
+                }
+            command.Dispose();
+
+            //Get list of CA
+            strSql = "SELECT CatId,CaDate,Summary, Description FROM CA WHERE "
+                + "UserName = @UserName AND CaDate Between @FromDate and @ToDate ORDER BY CaDate";
+            command = new SQLiteCommand(strSql, sqlCon);
+            command.Parameters.AddWithValue("@FromDate", calFromDate.Value.Date.ToString("yyyyMMdd"));
+            command.Parameters.AddWithValue("@ToDate", calToDate.Value.Date.ToString("yyyyMMdd"));
+            command.Parameters.AddWithValue("@UserName", txbReportUserName.Text);
+            DataTable details = new DataTable();
+            details.Load(command.ExecuteReader());
+            //Transform DataTable to List
+            if (details.Rows.Count > 0)
+                foreach (DataRow row in details.Rows)
+                {
+                    CA ca = new CA();
+                    ca.CatId = int.Parse(row[0].ToString());
+                    ca.CaDate = row[1].ToString().Substring(6, 2) + "/"
+                        + row[1].ToString().Substring(4, 2) + "/"
+                        + row[1].ToString().Substring(0, 4);
+                    ca.Summary = row[2].ToString();
+                    ca.Description = row[3].ToString();
+                    CAs.Add(ca);
+                }
+            command.Dispose();
+
+            //Create results table for exporting to excel
+            DataTable results = new DataTable();
+            results.Columns.Add("Number", typeof(string));
+            results.Columns.Add("Content", typeof(string));
+            results.Columns.Add("Date", typeof(string));
+            results.Columns.Add("Name", typeof(string));
+            results.Columns.Add("App", typeof(string));
+            results.Columns.Add("Note", typeof(string));
+
+            foreach (var cat in categories)
+            {
+                DataRow row = results.NewRow();
+                if (cat.SubCat == "0")
+                    row[0] = cat.Cat;
+                else row[0] = cat.SubCat;
+                row[1] = cat.Content;
+                results.Rows.Add(row);
+
+                int count = 1;
+                foreach (var ca in CAs)
+                {
+                    if (ca.CatId == cat.Id)
+                    {
+                        DataRow detailRow = results.NewRow();
+                        detailRow[0] = cat.SubCat.ToString() + "." + count.ToString();//Number
+                        detailRow[1] = "Tóm tắt: " + ca.Summary + "\r\n" + ca.Description;//Content
+                        detailRow[2] = ca.CaDate;//Date
+                        detailRow[3] = txbReportName.Text;//Name
+                        detailRow[4] = "TMS";//Application name
+                        detailRow[5] = txtResult.Text;//Note done
+                        count++;
+                        results.Rows.Add(detailRow);
+                    }
+                }
+            }
+            ExportToExcel(results, ConfigurationManager.AppSettings["ReportDetailFile"]);
+        }
+        
         private bool CheckReportParameter()
         {
             if (string.IsNullOrWhiteSpace(txbReportName.Text))
@@ -596,24 +611,23 @@ namespace AutoCA
             if (string.IsNullOrWhiteSpace(calToDate.Text))
                 return false;
             return true;
-        }
-    }
-
-    public class CA
-    {
-        public int CatId;
-        public string Date;
-        public string Summary;
-        public string Description;
-        public string Note;        
+        }        
     }
 
     public class Category
     {
         public int Id;
         public int Cat;
-        public int SubCat;
-        public string Text;
-        public string Note;//Roman number of Category;
-    }    
+        public string SubCat;
+        public string Content;
+    }
+
+    public class CA
+    {
+        public int CatId;
+        public string Summary;
+        public string Description;
+        public string CaDate;
+    }
+
 }
